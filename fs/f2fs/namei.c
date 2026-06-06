@@ -842,7 +842,6 @@ static int f2fs_rename(struct inode *old_dir, struct dentry *old_dentry,
 	if (!f2fs_is_checkpoint_ready(sbi))
 		return -ENOSPC;
 
-<<<<<<< HEAD
 	if (is_inode_flag_set(new_dir, FI_PROJ_INHERIT) &&
 			(!projid_eq(F2FS_I(new_dir)->i_projid,
 			F2FS_I(old_dentry->d_inode)->i_projid)))
@@ -860,12 +859,6 @@ static int f2fs_rename(struct inode *old_dir, struct dentry *old_dentry,
 		err = f2fs_try_convert_inline_dir(old_dir, new_dentry);
 		if (err)
 			return err;
-=======
-	if ((old_dir != new_dir) && f2fs_encrypted_inode(new_dir) &&
-			!fscrypt_has_permitted_context(new_dir, old_inode)) {
-		err = -EXDEV;
-		goto out;
->>>>>>> 206734eadd3c
 	}
 
 	if (flags & RENAME_WHITEOUT) {
@@ -1035,19 +1028,12 @@ static int f2fs_cross_rename(struct inode *old_dir, struct dentry *old_dentry,
 	if (!f2fs_is_checkpoint_ready(sbi))
 		return -ENOSPC;
 
-<<<<<<< HEAD
 	if ((is_inode_flag_set(new_dir, FI_PROJ_INHERIT) &&
 			!projid_eq(F2FS_I(new_dir)->i_projid,
 			F2FS_I(old_dentry->d_inode)->i_projid)) ||
 	    (is_inode_flag_set(new_dir, FI_PROJ_INHERIT) &&
 			!projid_eq(F2FS_I(old_dir)->i_projid,
 			F2FS_I(new_dentry->d_inode)->i_projid)))
-=======
-	if ((f2fs_encrypted_inode(old_dir) || f2fs_encrypted_inode(new_dir)) &&
-			(old_dir != new_dir) &&
-			(!fscrypt_has_permitted_context(new_dir, old_inode) ||
-			 !fscrypt_has_permitted_context(old_dir, new_inode)))
->>>>>>> 206734eadd3c
 		return -EXDEV;
 
 	err = dquot_initialize(old_dir);
