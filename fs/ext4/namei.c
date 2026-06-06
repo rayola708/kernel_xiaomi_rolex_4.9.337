@@ -3222,16 +3222,10 @@ static int ext4_link(struct dentry *old_dentry,
 		return -EMLINK;
 
 // 4.9.241
-/*	err = fscrypt_prepare_link(old_dentry, dir, dentry);
+	err = fscrypt_prepare_link(old_dentry, dir, dentry);
 	if (err)
-		return err; */
+		return err;
 // 4.9.241
-
-// 4.9.242
-	if (ext4_encrypted_inode(dir) &&
-			!fscrypt_has_permitted_context(dir, inode))
-		return -EXDEV;
-// 4.9.242
 
        if ((ext4_test_inode_flag(dir, EXT4_INODE_PROJINHERIT)) &&
 	   (!projid_eq(EXT4_I(dir)->i_projid,
