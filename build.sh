@@ -93,7 +93,7 @@ curl -s -X POST "https://api.telegram.org/bot${TG_BOT_TOKEN}/sendMessage" \
 }
 
 send_telegram_log() {
-    LOG_FILE="$ROOTDIR/logs/build.log"
+    LOG_FILE="$ROOTDIR/logs/build.txt"
 
     [ ! -f "$LOG_FILE" ] && return
 
@@ -183,6 +183,8 @@ upload_telegram() {
 \`${MD5_HASH}\`
 
 🧢 *Need Test*"
+
+send_telegram_log
 }
 
 # ================= RUN =================
