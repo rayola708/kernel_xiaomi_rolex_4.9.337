@@ -2,6 +2,11 @@ name: Yoru Kernel
 
 on:
   workflow_dispatch:
+    inputs:
+      commit_hash:
+        description: 'Masukkan Commit SHA (Kosongkan untuk build commit terbaru)'
+        required: false
+        default: ''
   watch:
     types: [started]
 
@@ -15,7 +20,10 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
+        with:
+          # Membaca input commit hash jika diisi, jika kosong akan mengambil yang terbaru
+          ref: ${{ github.event.inputs.commit_hash }}
 
       - name: Set Swap Space
         uses: pierotofy/set-swap-space@master
