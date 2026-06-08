@@ -292,6 +292,7 @@ int fscrypt_fname_disk_to_usr(struct inode *inode,
 }
 EXPORT_SYMBOL(fscrypt_fname_disk_to_usr);
 
+
 /**
  * fscrypt_setup_filename() - prepare to search a possibly encrypted directory
  * @dir: the directory that will be searched
