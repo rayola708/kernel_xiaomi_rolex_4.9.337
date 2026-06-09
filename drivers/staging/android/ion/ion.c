@@ -416,7 +416,7 @@ static struct ion_handle* ion_handle_get_check_overflow(struct ion_handle *handl
 	return handle;
 }
 
-static int ion_handle_put_nolock(struct ion_handle *handle)
+int ion_handle_put_nolock(struct ion_handle *handle)
 {
 	int ret;
 
@@ -549,7 +549,7 @@ static int ion_handle_add(struct ion_client *client, struct ion_handle *handle)
 	return 0;
 }
 
-static struct ion_handle *__ion_alloc(struct ion_client *client, size_t len,
+struct ion_handle *__ion_alloc(struct ion_client *client, size_t len,
 			       size_t align, unsigned int heap_id_mask,
 			       unsigned int flags, bool grab_handle)
 {
