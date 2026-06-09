@@ -780,7 +780,7 @@ bool is_spectre_bhb_affected(const struct arm64_cpu_capabilities *entry,
 	return false;
 }
 
-#ifdef CONFIG_MITIGATE_SPECTRE_BRANCH_HISTORY
+#ifdef CONFIG_HARDEN_BRANCH_PREDICTOR
 static void this_cpu_set_vectors(enum arm64_bp_harden_el1_vectors slot)
 {
 	const char *v = arm64_get_bp_hardening_vector(slot);
@@ -942,4 +942,19 @@ void __init spectre_bhb_patch_loop_iter(struct alt_instr *alt,
 					 AARCH64_INSN_MOVEWIDE_ZERO);
 	*updptr++ = cpu_to_le32(insn);
 }
+
+#else /* !CONFIG_HARDEN_BRANCH_PREDICTOR */
+
+/* Ini adalah cangkang kosong untuk mengecoh Compiler dan Linker kalau fitur utamanya di-OFF-kan */
+#ifdef CONFIG_MITIGATE_SPECTRE_BRANCH_HISTORY
+void spectre_bhb_enable_mitigation(const struct arm64_cpu_capabilities *entry)
+{
+}
+
+void __init spectre_bhb_patch_loop_iter(struct alt_instr *alt,
+					__le32 *origptr, __le32 *updptr, int nr_inst)
+{
+}
 #endif /* CONFIG_MITIGATE_SPECTRE_BRANCH_HISTORY */
+
+#endif /* CONFIG_HARDEN_BRANCH_PREDICTOR */
