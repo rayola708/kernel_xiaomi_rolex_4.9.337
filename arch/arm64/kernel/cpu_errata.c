@@ -16,6 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+/* FIX: Hapus duplikat include arm-smccc.h dan psci.h */
 #include <linux/arm-smccc.h>
 #include <linux/psci.h>
 #include <linux/types.h>
@@ -23,10 +24,8 @@
 #include <asm/cpu.h>
 #include <asm/cputype.h>
 #include <asm/cpufeature.h>
-#include <uapi/linux/psci.h>
-#include <linux/arm-smccc.h>
-#include <linux/psci.h>
 #include <asm/vectors.h>
+#include <uapi/linux/psci.h>
 
 static bool __maybe_unused
 is_affected_midr_range(const struct arm64_cpu_capabilities *entry, int scope)
@@ -110,7 +109,6 @@ static void __install_bp_hardening_cb(bp_hardening_cb_t fn,
 				      const char *hyp_vecs_start,
 				      const char *hyp_vecs_end)
 {
-
 	int cpu, slot = -1;
 
 	spin_lock(&bp_lock);
@@ -154,7 +152,7 @@ static void __install_bp_hardening_cb(bp_hardening_cb_t fn,
 }
 #endif	/* CONFIG_KVM */
 
-static void  install_bp_hardening_cb(const struct arm64_cpu_capabilities *entry,
+static void install_bp_hardening_cb(const struct arm64_cpu_capabilities *entry,
 				     bp_hardening_cb_t fn,
 				     const char *hyp_vecs_start,
 				     const char *hyp_vecs_end)
@@ -234,8 +232,6 @@ enable_smccc_arch_workaround_1(const struct arm64_cpu_capabilities *entry)
 	}
 
 	install_bp_hardening_cb(entry, cb, smccc_start, smccc_end);
-
-	return;
 }
 #endif	/* CONFIG_HARDEN_BRANCH_PREDICTOR */
 
@@ -373,7 +369,7 @@ static bool has_ssbd_mitigation(const struct arm64_cpu_capabilities *entry,
 		required = true;
 		break;
 
-	case 1:	/* Mitigation not required on this CPU */
+	case 1: /* Mitigation not required on this CPU */
 		required = false;
 		break;
 
@@ -430,8 +426,8 @@ static bool has_ssbd_mitigation(const struct arm64_cpu_capabilities *entry,
 	.matches = is_affected_midr_range_list,			\
 	.midr_range_list = list
 
-/* Errata affecting a range of revisions of  given model variant */
-#define ERRATA_MIDR_REV_RANGE(m, var, r_min, r_max)	 \
+/* Errata affecting a range of revisions of given model variant */
+#define ERRATA_MIDR_REV_RANGE(m, var, r_min, r_max)	\
 	ERRATA_MIDR_RANGE(m, var, r_min, var, r_max)
 
 /* Errata affecting a single variant/revision of a model */
@@ -878,7 +874,7 @@ static void kvm_setup_bhb_slot(const char *hyp_vecs_start)
 #define __spectre_bhb_loop_k32_start NULL
 #define __spectre_bhb_clearbhb_start NULL
 
-static void kvm_setup_bhb_slot(const char *hyp_vecs_start) { };
+static void kvm_setup_bhb_slot(const char *hyp_vecs_start) { }
 #endif /* CONFIG_KVM */
 
 static bool is_spectrev2_safe(void)
@@ -894,7 +890,7 @@ void spectre_bhb_enable_mitigation(const struct arm64_cpu_capabilities *entry)
 	if (!is_spectre_bhb_affected(entry, SCOPE_LOCAL_CPU))
 		return;
 
-	if (!is_spectrev2_safe() &&  !__hardenbp_enab) {
+	if (!is_spectrev2_safe() && !__hardenbp_enab) {
 		/* No point mitigating Spectre-BHB alone. */
 	} else if (!IS_ENABLED(CONFIG_MITIGATE_SPECTRE_BRANCH_HISTORY)) {
 		pr_info_once("spectre-bhb mitigation disabled by compile time option\n");
@@ -972,7 +968,15 @@ void __init spectre_bhb_patch_loop_iter(struct alt_instr *alt,
 
 #else /* !CONFIG_HARDEN_BRANCH_PREDICTOR */
 
-/* Ini adalah cangkang kosong untuk mengecoh Compiler dan Linker kalau fitur utamanya di-OFF-kan */
+/*
+ * Stub functions when CONFIG_HARDEN_BRANCH_PREDICTOR is disabled.
+ * Required to satisfy external references from entry.S and alternatives
+ * patching infrastructure when CONFIG_MITIGATE_SPECTRE_BRANCH_HISTORY
+ * is enabled without CONFIG_HARDEN_BRANCH_PREDICTOR.
+ *
+ * NOTE: This combination is architecturally unusual. Normally both
+ * configs are enabled together. These stubs prevent linker errors.
+ */
 #ifdef CONFIG_MITIGATE_SPECTRE_BRANCH_HISTORY
 void spectre_bhb_enable_mitigation(const struct arm64_cpu_capabilities *entry)
 {
