@@ -1,0 +1,116 @@
+name: Yoru Kernel
+
+on:
+  workflow_dispatch:
+    inputs:
+      commit_hash:
+        description: 'Masukkan Commit SHA (Kosongkan untuk build commit terbaru)'
+        required: false
+        default: ''
+  watch:
+    types: [started]
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  buildtest:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          # Membaca input commit hash jika diisi, jika kosong akan mengambil yang terbaru
+          ref: ${{ github.event.inputs.commit_hash }}
+
+      - name: Set Swap Space
+        uses: pierotofy/set-swap-space@master
+        with:
+          swap-size-gb: 5
+
+      - name: Install Packages
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y \
+            dialog bash sed wget git curl zip tar jq expect make cmake automake autoconf \
+            llvm lld lldb clang gcc binutils bison perl gperf gawk flex bc python3 zstd \
+            openssl unzip cpio build-essential ccache liblz4-tool libsdl1.2-dev libstdc++6 \
+            libxml2 libxml2-utils lzop pngcrush schedtool squashfs-tools xsltproc zlib1g-dev \
+            libncurses5-dev bzip2 gcc-aarch64-linux-gnu gcc-arm-linux-gnueabihf \
+            gcc-arm-linux-gnueabi dos2unix kmod
+
+      - name: Setup KernelSU (Legacy)
+        run: |
+          curl -LSs "https://raw.githubusercontent.com/KernelSU-Next/KernelSU-Next/next/kernel/setup.sh" | bash -s legacy
+
+      - name: Apply KernelSU 4.9 Compatibility Patch
+        run: |
+          # Perbaikan Utama 1: Arahkan direktori git apply ke tempat setup.sh menaruh kodenya
+          echo "Applying compatibility patch..."
+          git apply --directory=drivers/kernelsu 4.9ksuncompatbility.patch
+          echo "✓ Patch applied successfully."
+
+      - name: Fix Kbuild Routing for Linux 4.9
+        run: |
+          # Perbaikan Utama 2: Paksa Makefile mendaftarkan modul objek pendukung ksu_input_hook
+          if [ -f drivers/kernelsu/Makefile ]; then
+            echo "" >> drivers/kernelsu/Makefile
+            echo "# Aturan kompilasi paksa untuk kernel 4.9 legacy" >> drivers/kernelsu/Makefile
+            echo "obj-y += kernel/" >> drivers/kernelsu/Makefile
+            echo "obj-y += core/" >> drivers/kernelsu/Makefile
+            
+            # Buat Makefile tambahan di dalam subfolder kernel agar Kbuild tahu apa yang harus di-build
+            echo "obj-y += feature/ sulog/ infra/ runtime/" > drivers/kernelsu/kernel/Makefile
+            echo "obj-y += selinux_hide.o sulog.o" > drivers/kernelsu/kernel/feature/Makefile
+            echo "obj-y += event.o" > drivers/kernelsu/kernel/sulog/Makefile
+            echo "obj-y += event_queue.o" > drivers/kernelsu/kernel/infra/Makefile
+            echo "obj-y += ksud_integration.o" > drivers/kernelsu/kernel/runtime/Makefile
+          fi
+          echo "✓ Kbuild routing secured."
+         
+      - name: Start Build (with log)
+        env:
+          KBUILD_BUILD_USER: "Hoshino"
+          KBUILD_BUILD_HOST: "Yoru"
+          TG_BOT_TOKEN: ${{ secrets.TG_BOT_TOKEN }}
+          TG_CHAT_ID: ${{ secrets.TG_CHAT_ID }}
+        run: |
+          # Buat .scmversion kosong untuk hapus tanda +
+          touch .scmversion
+          mkdir -p logs
+          
+          # Bersihkan cache out sebelum build dimulai
+          rm -rf out
+          
+          bash build.sh 2>&1 | tee logs/build.txt
+
+      - name: Upload Build Log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-log
+          path: logs/build.txt
+
+      - name: Upload AnyKernel Zip
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: anykernel-zip
+          path: AnyKernel/*.zip
+
+      - name: Upload Kernel Image
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: image-gz
+          path: out/arch/arm64/boot/Image.gz
+
+      - name: Upload DTB
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: image-gz-dtb
+          path: out/arch/arm64/boot/Image.gz-dtb
+          
