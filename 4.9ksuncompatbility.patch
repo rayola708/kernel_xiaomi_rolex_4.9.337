@@ -32,6 +32,7 @@ index 8b3ee87e50..b36494bc1c 100644
  #include <linux/namei.h>
  #include <linux/kthread.h>
  #include <linux/delay.h>
+ 
 diff --git a/kernel/feature/sulog.c b/kernel/feature/sulog.c
 index 7173b70a8f..78a3f141d6 100644
 --- a/kernel/feature/sulog.c
@@ -47,6 +48,7 @@ index 7173b70a8f..78a3f141d6 100644
  
  #include "feature/sulog.h"
  #include "klog.h" // IWYU pragma: keep
+ 
 diff --git a/kernel/infra/event_queue.c b/kernel/infra/event_queue.c
 index 9f5816c3c4..28494be329 100644
 --- a/kernel/infra/event_queue.c
@@ -72,6 +74,7 @@ index 9f5816c3c4..28494be329 100644
  struct ksu_event_queue_node {
      struct list_head list;
      struct ksu_event_record_hdr hdr;
+     
 diff --git a/kernel/infra/event_queue.h b/kernel/infra/event_queue.h
 index f00f2e71f9..3e8a2b8ffd 100644
 --- a/kernel/infra/event_queue.h
@@ -104,6 +107,7 @@ index 949b806711..bf9c2614cf 100644
  #include <linux/slab.h>
  #include <linux/string.h>
  #include <linux/uaccess.h>
+ 
 diff --git a/kernel/sulog/event.h b/kernel/sulog/event.h
 index 6a555cc34a..fb329a1fb7 100644
 --- a/kernel/sulog/event.h
@@ -121,3 +125,19 @@ index 6a555cc34a..fb329a1fb7 100644
  #include <linux/gfp.h>
  #include <linux/init.h>
  #include <linux/types.h>
+
+diff --git a/kernel/feature/selinux_hide.c b/kernel/feature/selinux_hide.c
+index b36494bc..bcd3bf77 100644
+--- a/kernel/feature/selinux_hide.c
++++ b/kernel/feature/selinux_hide.c
+@@ -4,6 +4,10 @@
+ #include <linux/mutex.h>
+ #include <linux/slab.h>
+ #include <linux/version.h>
++#include <linux/security.h>
++#if defined(CONFIG_KPROBES)
++#include <linux/kprobes.h>
++#endif
+ #if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 12, 0)
+ #include <asm/set_memory.h>
+ #else
