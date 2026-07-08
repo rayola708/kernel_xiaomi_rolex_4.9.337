@@ -45,13 +45,24 @@ jobs:
         run: |
          curl -LSs "https://raw.githubusercontent.com/KernelSU-Next/KernelSU-Next/next/kernel/setup.sh" | bash -s legacy
 
-      - name: Patch compatibility
-        run: |
-          sed -i 's@<linux/compiler_types.h>@<linux/compiler.h>@' \
-          drivers/kernelsu/feature/sulog.c
+     # - name: Patch compatibility
+        # run: |
+          # sed -i 's@<linux/compiler_types.h>@<linux/compiler.h>@' \
+          # drivers/kernelsu/feature/sulog.c
 
-          sed -i 's@<linux/compiler_types.h>@<linux/compiler.h>@' \
-          drivers/kernelsu/sulog/event.h
+          # sed -i 's@<linux/compiler_types.h>@<linux/compiler.h>@' \
+          # drivers/kernelsu/sulog/event.h
+
+      - name: Apply KernelSU 4.9 Compatibility Patch
+        run: |
+          # Masuk ke repository KernelSU-Next
+          cd KernelSU-Next
+
+          # Cek apakah patch bisa diterapkan
+          git apply --check ../4.9ksuncompatbility.patch
+
+          # Terapkan patch
+          git apply ../4.9ksuncompatbility.patch
          
       - name: Start Build (with log)
         env:
