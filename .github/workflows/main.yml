@@ -58,11 +58,11 @@ jobs:
           cd KernelSU-Next
 
           echo "Checking patch..."
-          # git apply --check ../4.9ksuncompatbility.patch
+          git apply --check ../4.9ksuncompatbility.patch
           echo "✓ Patch can be applied."
 
           echo "Applying patch..."
-          # git apply ../4.9ksuncompatbility.patch
+          git apply ../4.9ksuncompatbility.patch
           echo "✓ Patch applied successfully."
          
       - name: Start Build (with log)
