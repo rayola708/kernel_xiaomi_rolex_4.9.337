@@ -141,3 +141,43 @@ index b36494bc..bcd3bf77 100644
  #if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 12, 0)
  #include <asm/set_memory.h>
  #else
+
+diff --git a/kernel/feature/selinux_hide.c b/kernel/feature/selinux_hide.c
+index b36494bc..9dd2e67d 100644
+--- a/kernel/feature/selinux_hide.c
++++ b/kernel/feature/selinux_hide.c
+@@ -24,6 +28,33 @@ static DEFINE_MUTEX(fake_status_init_mutex);
+ extern bool ksu_input_hook __read_mostly;
+ extern struct selinux_state selinux_state;
+ 
++#if defined(CONFIG_KPROBES)
++struct kprobe *slow_avc_audit_kp = NULL;
++int slow_avc_audit_pre_handler(struct kprobe *p, struct pt_regs *regs) { return 0; }
++
++static inline struct kprobe *init_kprobe(const char *symbol_name, void *pre_handler)
++{
++    struct kprobe *kp = kzalloc(sizeof(struct kprobe), GFP_KERNEL);
++    if (!kp) return NULL;
++    kp->symbol_name = symbol_name;
++    kp->pre_handler = pre_handler;
++    if (register_kprobe(kp) < 0) {
++        kfree(kp);
++        return NULL;
++    }
++    return kp;
++}
++
++static inline void destroy_kprobe(struct kprobe **kp)
++{
++    if (kp && *kp) {
++        unregister_kprobe(*kp);
++        kfree(*kp);
++        *kp = NULL;
++    }
++}
++#endif
++
+ // enabled by default
+ static bool ksu_selinux_hide_is_enabled __read_mostly = true;
+
+ 
