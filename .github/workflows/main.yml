@@ -47,7 +47,7 @@ jobs:
 
       - name: Patch Manual Hook
         run: |
-          patch -p1 < min_scope_syscall_hooks_v1.5.patch
+          # patch -p1 < min_scope_syscall_hooks_v1.5.patch
           
       - name: Start Build (with log)
         env:
