@@ -43,31 +43,8 @@ jobs:
 
       - name: Setup KernelSU (Legacy)
         run: |
-          curl -LSs "https://raw.githubusercontent.com/KernelSU-Next/KernelSU-Next/next/kernel/setup.sh" | bash -s legacy
-
-      - name: Apply KernelSU 4.9 Compatibility Patch
-        run: |
-          cd KernelSU-Next
-
-          echo "Checking patch..."
-          git apply --check ../4.9ksuncompatbility.patch
-          echo "✓ Patch can be applied."
-
-          echo "Applying patch..."
-          git apply ../4.9ksuncompatbility.patch
-          echo "✓ Patch applied successfully."
-
-      - name: Fix Kbuild Routing for Linux 4.9
-        run: |
-          if [ -f KernelSU-Next/kernel/Makefile ]; then
-            echo "" >> KernelSU-Next/kernel/Makefile
-            echo "# Aturan objek wajib untuk KernelSU-Next di Kernel 4.9" >> KernelSU-Next/kernel/Makefile
-            echo "obj-y += feature/" >> KernelSU-Next/kernel/Makefile
-            echo "obj-y += sulog/" >> KernelSU-Next/kernel/Makefile
-            echo "obj-y += infra/" >> KernelSU-Next/kernel/Makefile
-            echo "obj-y += runtime/" >> KernelSU-Next/kernel/Makefile
-          fi
-          echo "✓ Kbuild routing secured."
+          # curl -LSs "https://raw.githubusercontent.com/KernelSU-Next/KernelSU-Next/next/kernel/setup.sh" | bash -s legacy
+          curl -LSs "https://raw.githubusercontent.com/backslashxx/KernelSU/master/kernel/setup.sh" | bash -
          
       - name: Start Build (with log)
         env:
