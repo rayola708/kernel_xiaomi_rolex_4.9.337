@@ -1,4 +1,4 @@
-name: Yoru Kernel
+name: Yoru Kernel X
 
 on:
   workflow_dispatch:
