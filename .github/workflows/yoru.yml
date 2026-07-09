@@ -39,13 +39,13 @@ jobs:
           # Install Telethon untuk Userbot
           python3 -m pip install telethon
 
-      - name: Setup WeebX Clang
+      - name: Setup ZYC Clang
         run: |
-          mkdir -p weebx-clang
-          cd weebx-clang
-            wget -q $(curl -k https://raw.githubusercontent.com/XSans0/WeebX-Clang/main/main/link.txt) -O weebx-clang.tar.gz
-            tar -xf weebx-clang.tar.gz
-            rm -f weebx-clang.tar.gz
+          mkdir -p zyc-clang
+          cd zyc-clang
+            wget -q $(curl -k https://raw.githubusercontent.com/ZyCromerZ/Clang/main/Clang-12-link.txt) -O zyc-clang.tar.gz
+            tar -xf zyc-clang.tar.gz
+            rm -f zyc-clang.tar.gz
 
       - name: Setup KernelSU (Hookless)
         run: |
