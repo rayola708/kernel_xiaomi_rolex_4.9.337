@@ -53,9 +53,8 @@ jobs:
           # curl -LSs "https://raw.githubusercontent.com/Mr-Morat/KernelSU-Next/stable/kernel/setup.sh" | bash -s syscall
           # curl -LSs "https://github.com/karamdev1/KernelSU-Next/raw/refs/heads/legacy/kernel/setup.sh" | bash -s legacy
           git clone https://github.com/karamdev1/KernelSU-Next.git -b legacy
-          cd KernelSU-Next/kernel
-          sed -i 's/^OWNER="KernelSU-Next"/OWNER="karamdev1"/' setup.sh
-          bash setup.sh legacy
+          sed -i 's/^OWNER="KernelSU-Next"/OWNER="karamdev1"/' KernelSU-Next/kernel/setup.sh
+          bash KernelSU-Next/kernel/setup.sh legacy
 
       - name: Start Build with log
         env:
