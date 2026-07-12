@@ -53,7 +53,7 @@ jobs:
 
       - name: Patch Kernel With Manual Hook
         run: |
-          patch -p1 < 0001-ksu-manual-hooks-k49-fixed-3.patch
+          patch -p1 < 0001-ksu-manual-hooks-k49-final.patch
 
       - name: Start Build with log
         env:
