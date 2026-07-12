@@ -43,11 +43,7 @@ jobs:
 
       - name: Setup KernelSU (Legacy)
         run: |
-         curl -LSs "https://github.com/karamdev1/KernelSU-Next/raw/refs/heads/legacy/kernel/setup.sh" | bash -s legacy   
-         
-      # - name: Patch Manual Hook
-        # run: |
-          # patch -p1 < min_scope_syscall_hooks_v1.5.patch
+          curl -LSs "https://raw.githubusercontent.com/backslashxx/KernelSU/master/kernel/setup.sh" | bash -   
           
       - name: Start Build (with log)
         env:
