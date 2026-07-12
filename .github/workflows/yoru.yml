@@ -51,6 +51,10 @@ jobs:
         run: |
           curl -LSs "https://raw.githubusercontent.com/backslashxx/KernelSU/master/kernel/setup.sh" | bash -   
 
+      - name: Patch Kernel With Manual Hook
+        run: |
+          patch -p1 < 0001-ksu-manual-hooks-k49-fixed-3.patch
+
       - name: Start Build with log
         env:
           KBUILD_BUILD_USER: "Hoshino"
