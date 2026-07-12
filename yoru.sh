@@ -49,6 +49,7 @@ IMG_USED="unknown"
 ZIP_NAME=""
 PD_LINK="Upload Failed"
 SL_LINK="Generation Failed"
+MSG_ID=""
 
 # ================= LOG =================
 LOG_DIR="$ROOTDIR/logs"
@@ -124,11 +125,12 @@ get_kernel_version() {
     fi
 }
 
+# Kirim pesan awal SEKALI, simpan message_id-nya buat di-edit nanti
 send_telegram_start() {
 
     CLANG_VERSION=$(clang --version | head -n1)
 
-    telegram \
+    RESPONSE=$(telegram \
         -X POST \
         "https://api.telegram.org/bot${TG_BOT_TOKEN}/sendMessage" \
         -d chat_id="${TG_CHAT_ID}" \
@@ -144,7 +146,36 @@ send_telegram_start() {
 
 🕒 Started
 \`${BUILD_DATETIME}\`
-"
+")
+
+    MSG_ID=$(echo "$RESPONSE" | jq -r '.result.message_id // empty')
+
+    if [ -z "$MSG_ID" ]; then
+        warn "Gagal ambil message_id, fallback ke pesan baru untuk update status"
+    fi
+}
+
+# Edit pesan yang sudah dikirim di send_telegram_start.
+# Kalau MSG_ID kosong (misal gagal kirim start), fallback kirim pesan baru.
+edit_telegram_status() {
+    local TEXT="$1"
+
+    if [ -n "$MSG_ID" ]; then
+        telegram \
+            -X POST \
+            "https://api.telegram.org/bot${TG_BOT_TOKEN}/editMessageText" \
+            -d chat_id="${TG_CHAT_ID}" \
+            -d message_id="${MSG_ID}" \
+            -d parse_mode=Markdown \
+            -d text="${TEXT}"
+    else
+        telegram \
+            -X POST \
+            "https://api.telegram.org/bot${TG_BOT_TOKEN}/sendMessage" \
+            -d chat_id="${TG_CHAT_ID}" \
+            -d parse_mode=Markdown \
+            -d text="${TEXT}"
+    fi
 }
 
 send_telegram_log() {
@@ -161,12 +192,7 @@ send_telegram_log() {
 
 send_telegram_error() {
 
-    telegram \
-        -X POST \
-        "https://api.telegram.org/bot${TG_BOT_TOKEN}/sendMessage" \
-        -d chat_id="${TG_CHAT_ID}" \
-        -d parse_mode=Markdown \
-        -d text="❌ *Kernel Build Failed*
+    edit_telegram_status "❌ *Kernel Build Failed*
 
 📱 Device : \`${DEVICE}\`
 🏷 Variant : \`${VARIANT}\`
@@ -367,7 +393,7 @@ EOF
         SL_LINK="Generation Failed"
     fi
 
-    info "Sending telegram message..."
+    info "Updating telegram message..."
 
     if [ "$SL_LINK" != "Generation Failed" ]; then
 
@@ -387,12 +413,7 @@ EOF
 
     fi
 
-    telegram \
-        -X POST \
-        "https://api.telegram.org/bot${TG_BOT_TOKEN}/sendMessage" \
-        -d chat_id="${TG_CHAT_ID}" \
-        -d parse_mode=Markdown \
-        -d text="🔥 *Kernel Build Success*
+    edit_telegram_status "🔥 *Kernel Build Success*
 
 📱 Device : \`${DEVICE}\`
 📦 Kernel : \`${KERNEL_NAME}\`
