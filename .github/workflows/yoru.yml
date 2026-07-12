@@ -66,6 +66,7 @@ jobs:
           TELE_API_HASH: ${{ secrets.TELE_API_HASH }}
           TELE_SESSION: ${{ secrets.TELE_SESSION }}
         run: |
+          touch .scmversion
           mkdir -p logs
           bash yoru.sh ${{ matrix.variant }} 2>&1 | tee logs/build-${{ matrix.variant }}.txt
 
