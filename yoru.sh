@@ -25,7 +25,7 @@ KIMG="$OUTDIR/Image.gz"
 export PATH="$ROOTDIR/zyc-clang/bin:$PATH"
 
 # ================= INFO =================
-KERNEL_NAME="Yoru"
+KERNEL_NAME="Mystrile"
 DEVICE="rolex"
 
 # =============== DATE (WIB) ===============
